@@ -4,7 +4,7 @@ import { DecisionContext } from "../context/DecisionContext";
 import calculateScore from "../utils/calculateScore";
 
 function ScoreMatrix() {
-  const { options, factors, addScore, scores, setResult } =
+  const { options, factors, addScore, scores, setResult, saveToHistory } =
     useContext(DecisionContext);
 
   const navigate = useNavigate();
@@ -14,12 +14,27 @@ function ScoreMatrix() {
   };
 
   const handleResult = () => {
+    const hasAnyScore = options.some((option) =>
+      factors.some((factor) => scores[`${option}-${factor}`] > 0)
+    );
+
+    if (!hasAnyScore) {
+      alert("Enter at least one score between 1 and 10.");
+      return;
+    }
+
     const result = calculateScore(options, factors, scores);
+    if (!result.bestOption) {
+      alert("Enter valid scores for your options and factors.");
+      return;
+    }
+
     setResult(result);
+    saveToHistory(result);
     navigate("/results");
   };
 
-  if (options.length === 0 || factors.length === 0) {
+  if (!options.length || !factors.length) {
     return (
       <div className="form-box">
         <h2>Add options and factors first</h2>
@@ -43,6 +58,7 @@ function ScoreMatrix() {
                 type="number"
                 min="1"
                 max="10"
+                value={scores[`${option}-${factor}`] || ""}
                 onChange={(e) =>
                   handleChange(option, factor, e.target.value)
                 }
@@ -52,7 +68,7 @@ function ScoreMatrix() {
         </div>
       ))}
 
-      <button onClick={handleResult}>Get Best Decision</button>
+      <button className="btn btn-primary" onClick={handleResult}>Get Best Decision</button>
     </div>
   );
 }

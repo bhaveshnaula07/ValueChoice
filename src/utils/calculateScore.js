@@ -1,4 +1,13 @@
 function calculateScore(options, factors, scores) {
+  // Validate inputs
+  if (!options || options.length === 0 || !factors || factors.length === 0 || !scores) {
+    return {
+      bestOption: "",
+      highestScore: 0,
+      allResults: [],
+    };
+  }
+
   let bestOption = "";
   let highestScore = 0;
   let allResults = [];
@@ -21,6 +30,15 @@ function calculateScore(options, factors, scores) {
       bestOption = option;
     }
   });
+
+  // Only return valid results if there's actual data
+  if (allResults.length === 0 || highestScore === 0) {
+    return {
+      bestOption: "",
+      highestScore: 0,
+      allResults: [],
+    };
+  }
 
   return {
     bestOption,
